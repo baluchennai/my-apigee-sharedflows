@@ -1,0 +1,70 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<parent>
+		<artifactId>parent-pom</artifactId>
+		<groupId>apigee</groupId>
+		<version>1.0</version>
+	</parent>
+
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>apigee</groupId>
+	<artifactId>security-sharedflow1</artifactId>
+	<version>1.0</version>
+	<name>security-sharedflow1</name>
+	<packaging>pom</packaging>
+
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-clean-plugin</artifactId>
+				<version>2.5</version>
+			</plugin>
+
+			<plugin>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>2.6</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<overwrite>true</overwrite>
+							<encoding>UTF-8</encoding>
+							<echo message="basedir parent : ${basedir}" />
+							<outputDirectory>${basedir}/target/sharedflowbundle</outputDirectory>
+							<resources>
+								<resource>
+									<directory>sharedflowbundle</directory>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>io.apigee.build-tools.enterprise4g</groupId>
+				<artifactId>apigee-edge-maven-plugin</artifactId>
+				<version>1.1.6</version>
+				<executions>
+					<execution>
+						<id>configure-bundle</id>
+						<phase>package</phase>
+						<goals>
+							<goal>configure</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>deploy-bundle</id>
+						<phase>install</phase>
+						<goals>
+							<goal>deploy</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
