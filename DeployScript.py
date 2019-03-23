@@ -9,9 +9,9 @@ import getpass
 from requests.auth import HTTPBasicAuth
 
 # Input parameters for deployment
-u_name= 'balu_chennai@yahoo.com'
-password= 'Balu*123'
-org_name= 'baluchennai-eval'
+u_name= 'user'
+password= 'pwd'
+org_name= 'org'
 
 #TODO: Pass environment as one of the parameter
 
