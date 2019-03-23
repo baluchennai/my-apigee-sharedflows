@@ -9,9 +9,9 @@ import getpass
 from requests.auth import HTTPBasicAuth
 
 # Input parameters for deployment
-u_name= 'user'
-password= 'pass'
-org_name= 'org'
+u_name= 'balu_chennai@yahoo.com'
+password= 'Balu*123'
+org_name= 'baluchennai-eval'
 
 #TODO: Pass environment as one of the parameter
 
@@ -61,8 +61,10 @@ def access():
         else:
             for doc in res1_dict['environment']:
                 for rev in doc['revision']:
-                    for nm in rev['name']:
-                        print("the latest deployed revision is "+nm)
+                    nm = rev['name'];
+                    print("The latest deployed revision is "+nm)
+                    #for nm in rev['name']:
+                        #print("the latest deployed revision is "+nm)
             
 
 ### Not sure why this piece of code is required ###
@@ -86,7 +88,7 @@ def access():
 ###################################################
             
             # Undeploying latest version
-            nm = 12 #BYPASS
+            #nm = 12 #BYPASS
             res2= requests.delete("https://api.enterprise.apigee.com/v1/o/"+org_name+"/environments/test/sharedflows/"+s_details+"/revisions/"+str(nm)+"/deployments", auth=HTTPBasicAuth(u_name,password))
             if res2.ok:
                 print("undeployed "+str(nm))
