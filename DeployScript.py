@@ -12,6 +12,7 @@ from requests.auth import HTTPBasicAuth
 u_name= 'user'
 password= 'pwd'
 org_name= 'org'
+deploy_env='test'
 
 #TODO: Pass environment as one of the parameter
 
@@ -49,8 +50,8 @@ def access():
         
         #If no deployments available for the sharedflow 
         if(res1_dict['environment']==[]):
-            print("No deployments found for the Sharedflow. Deploying revision 1 to 'test' environment")
-            revision1= requests.post("https://api.enterprise.apigee.com/v1/o/"+org_name+"/environments/test/sharedflows/"+s_details+"/deployments", auth=HTTPBasicAuth(u_name,password))
+            print("No deployments found for the Sharedflow. Deploying revision 1 to '"+deploy_env+"' environment")
+            revision1= requests.post("https://api.enterprise.apigee.com/v1/o/"+org_name+"/environments/"+deploy_env+"/sharedflows/"+s_details+"/deployments", auth=HTTPBasicAuth(u_name,password))
             if revision1.ok:
                 print("Current deployed Sharedflow revision"+revision1)
             else:
@@ -89,7 +90,7 @@ def access():
             
             # Undeploying latest version
             #nm = 12 #BYPASS
-            res2= requests.delete("https://api.enterprise.apigee.com/v1/o/"+org_name+"/environments/test/sharedflows/"+s_details+"/revisions/"+str(nm)+"/deployments", auth=HTTPBasicAuth(u_name,password))
+            res2= requests.delete("https://api.enterprise.apigee.com/v1/o/"+org_name+"/environments/"+deploy_env+"/sharedflows/"+s_details+"/revisions/"+str(nm)+"/deployments", auth=HTTPBasicAuth(u_name,password))
             if res2.ok:
                 print("undeployed "+str(nm))
             else:
@@ -98,9 +99,9 @@ def access():
             int_nm1= int(nm)
             
             #Deploy a new version
-            res3= requests.post("https://api.enterprise.apigee.com/v1/o/"+org_name+"/environments/test/sharedflows/"+s_details+"/revisions/"+str(int_nm1+1)+"/deployments", auth=HTTPBasicAuth(u_name,password))
+            res3= requests.post("https://api.enterprise.apigee.com/v1/o/"+org_name+"/environments/"+deploy_env+"/sharedflows/"+s_details+"/revisions/"+str(int_nm1+1)+"/deployments", auth=HTTPBasicAuth(u_name,password))
             if res3.ok:
-                print("Deployed new version to 'test' env "+str(int_nm1+1))
+                print("Deployed new version to '"+deploy_env+"' env "+str(int_nm1+1))
             else:
                 res3.raise_for_status()
        
