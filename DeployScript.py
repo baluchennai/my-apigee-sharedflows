@@ -1,104 +1,106 @@
+'''
+Created on 23-Mar-2019
+
+@author: Ammuty
+'''
 import requests
 import json
 import getpass
 from requests.auth import HTTPBasicAuth
-# asks for credentials and version name
-print("you need to enter credentials\n")
-u_name= input("enter username: ")
-print("\n")
-password= getpass.getpass("enter password: ")
-org_name= input("enter your organization name")    
+
+# Input parameters for deployment
+u_name= 'user'
+password= 'pass'
+org_name= 'org'
+
+#TODO: Pass environment as one of the parameter
+
 def tasks():
-    task= input("press 1 to create a shared flow or any other number to process already existing shared flows")
-    if task== '1':
         version()
-    else:
         access()
+
 # creating a version
 def version():
-    revision_name= input("enter the shared flow name you want to create: ")
+    sflowName= 'security-sharedflow1'
+    artifact_loc = "/Users/Ammuty/Downloads"
     params=(
     ('action','import'),
-    ('name', revision_name),)
-        files= {
-    'file':('1.zip',open('C:/Users/1439516/Downloads/zip_files/1.zip','rb')),
+    ('name', sflowName))
+    files= {
+    'file':('security-sharedflow1',open('/Users/Ammuty/Downloads/security-sharedflow1.zip','rb')),
     }
     response= requests.post("https://api.enterprise.apigee.com/v1/o/"+org_name+"/sharedflows",params=params,files=files,auth= HTTPBasicAuth(u_name,password))
     if response.ok:
-        
         r_dict= json.loads(response.text)
-        print("Created successfully")
-        #print(r_dict)
+        print("Created Sharedflow successfully")
     else:
         response.raise_for_status()
-    choice= input("Press 1 to create more shared flows or 2 to access already existing shared flows")
-    if choice =='1':
-        version()
-    if choice=='2':
-        access()
-    else:
-        print("exiting")
+
 # accessing already existing shared flows
 def access():
-        s_details= input("enter the name of required shared flow: ")
+        s_details= 'security-sharedflow1'
         res1= requests.get("https://api.enterprise.apigee.com/v1/o/"+org_name+"/sharedflows/"+s_details+"/deployments",auth= HTTPBasicAuth(u_name,password))
         if res1.ok:
             print("ok")
         else:
             res1.raise_for_status()
         res1_dict= json.loads(res1.text)
+        print('Response: '+res1.text)
+        
+        #If no deployments available for the sharedflow 
         if(res1_dict['environment']==[]):
-            print("No deployments. Deploying 'test' environment to revision 1")
-            revision1= requests.post("https://api.enterprise.apigee.com/v1/o/"+org_name+"/environments/test/sharedflows/"+s_details+"/revisions/1/deployments", auth=HTTPBasicAuth(u_name,password))
+            print("No deployments found for the Sharedflow. Deploying revision 1 to 'test' environment")
+            revision1= requests.post("https://api.enterprise.apigee.com/v1/o/"+org_name+"/environments/test/sharedflows/"+s_details+"/deployments", auth=HTTPBasicAuth(u_name,password))
             if revision1.ok:
-                print("deployed revision 1")
+                print("Current deployed Sharedflow revision"+revision1)
             else:
                 revision1.raise_for_status()
+        
+        #Check the latest revision deployed already for the shared flow.
+        #TODO: Handle needs to be changed for multi-environment situation
         else:
             for doc in res1_dict['environment']:
                 for rev in doc['revision']:
                     for nm in rev['name']:
-                        print(nm)
-            print("the latest deployed revision is "+nm)
-            nm_int1=int(nm)
-            nm_int= int(nm)
-            for doc1 in res1_dict['environment']:
-                for rev1 in doc['revision']:
-                    for nm1 in rev['name']:
-                        if nm1!= (nm_int+1):
-                                print("no further revisions. Creating one.....")
-                                params1= (('action','import'),('name',s_details),)
-                                files= {
-                                 'file':('1',open('C:/Users/1439516/Downloads/zip_files/1.zip','rb')),
-    }
-                                further_response= requests.post("https://api.enterprise.apigee.com/v1/o/"+org_name+"/sharedflows",params=params1,files=files,auth= HTTPBasicAuth(u_name,password))
-                                if further_response.ok:
-                                    print("created further revision to deploy")
-                                else:
-                                    further_response.raise_for_status()
-                        else:
-                            print("redirecting to deploy....")
-        #undeploying latest version
-            res2= requests.delete("https://api.enterprise.apigee.com/v1/o/"+org_name+"/environments/test/sharedflows/"+s_details+"/revisions/"+nm+"/deployments", auth=HTTPBasicAuth(u_name,password))
+                        print("the latest deployed revision is "+nm)
+            
+
+### Not sure why this piece of code is required ###
+#             nm_int= int(nm)
+#             for doc1 in res1_dict['environment']:
+#                 for rev1 in doc['revision']:
+#                     for nm1 in rev['name']:
+#                         if nm1!= (nm_int+1):
+#                                 print("no further revisions. Creating one.....")
+#                                 params1= (('action','import'),('name',s_details))
+#                                 files= {
+#                                  'file':('security-sharedflow1',open('/Users/Ammuty/Downloads/security-sharedflow1.zip','rb')),
+#                                 }
+#                                 further_response= requests.post("https://api.enterprise.apigee.com/v1/o/"+org_name+"/sharedflows",params=params1,files=files,auth= HTTPBasicAuth(u_name,password))
+#                                 if further_response.ok:
+#                                     print("created further revision to deploy")
+#                                 else:
+#                                     further_response.raise_for_status()
+#                         else:
+#                             print("redirecting to deploy....")
+###################################################
+            
+            # Undeploying latest version
+            nm = 12 #BYPASS
+            res2= requests.delete("https://api.enterprise.apigee.com/v1/o/"+org_name+"/environments/test/sharedflows/"+s_details+"/revisions/"+str(nm)+"/deployments", auth=HTTPBasicAuth(u_name,password))
             if res2.ok:
-                print("undeployed "+nm)
+                print("undeployed "+str(nm))
             else:
                 res2.raise_for_status()
        
             int_nm1= int(nm)
-#deploying a new version
+            
+            #Deploy a new version
             res3= requests.post("https://api.enterprise.apigee.com/v1/o/"+org_name+"/environments/test/sharedflows/"+s_details+"/revisions/"+str(int_nm1+1)+"/deployments", auth=HTTPBasicAuth(u_name,password))
             if res3.ok:
-                   print("deployed new version 'test' to revision "+str(int_nm1+1))
+                print("Deployed new version to 'test' env "+str(int_nm1+1))
             else:
-                    res3.raise_for_status()
-        continue_choice= input("enter 1 to continue or 2 to create shared flow ")
-        if continue_choice=='1':
-                access()
-        if continue_choice=='2':
-                version()
-        else:
-                print("exiting")
+                res3.raise_for_status()
        
 if __name__=="__main__":
     tasks()
